@@ -14,9 +14,20 @@ def read_data():
     return strings
 
 def align_strings(strings):
-    return 'asdf'
+    # Extract largest string
+    largest_string = strings.pop(0)
 
+    # Find longest common substring
 
+    # Combine longest common substring
+
+    # Recurse if strings is not length 1
+
+    return ''
+
+def longest_common_substring(string1, string2):
+
+    return ''
 
 
 if __name__ == "__main__":
