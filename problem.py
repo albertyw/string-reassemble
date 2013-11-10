@@ -13,3 +13,16 @@ def read_data():
     strings = data.split(';')
     return strings
 
+def align_strings(strings):
+    return 'asdf'
+
+
+
+
+if __name__ == "__main__":
+    strings = read_data()
+
+    # Sort from largest to smallest
+    strings = sorted(strings, key=lambda x: -len(x))
+
+    print align_strings(strings)
