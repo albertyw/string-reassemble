@@ -23,7 +23,7 @@ def read_data():
 def align_strings(strings):
     # Sort from largest to smallest
     strings = sorted(strings, key=lambda x: -len(x))
-    longest_string = ''
+    longest_string = strings[0]
     while len(strings) > 1:
         # Find longest common substring
         matches = []
