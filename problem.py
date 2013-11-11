@@ -29,7 +29,7 @@ def align_strings(strings):
         best_length = 0
         for i, string1 in enumerate(strings):
             for j, string2 in enumerate(strings[i+1:], start = i+1):
-                substring_length, location = longest_common_headtail(string1, string2)
+                substring_length, location = longest_common_headtail(string1, string2, best_length+1)
                 if substring_length > best_length:
                     best_length = substring_length
                     best_location = location
@@ -58,8 +58,9 @@ def align_strings(strings):
 # Assumes that len(string2) <= len(string1)
 # Returns (length of overlap, location of overlap relative to string1)
 #
-def longest_common_headtail(string1, string2):
-    for i in reversed(range(len(string2))[1:]):
+def longest_common_headtail(string1, string2, min_length = 1):
+    lengths = range(len(string2))[min_length:]
+    for i in reversed(lengths):
         if string1[:i] == string2[len(string2)-i:]:
             return i, i - len(string2)
         if string1[len(string1)-i:] == string2[:i]:
@@ -107,6 +108,21 @@ class TestLongestCommonHeadTail(unittest.TestCase):
         string1 = 'asdf'
         string2 = 'asd'
         self.assertEqual(longest_common_headtail(string1, string2), (0, 0))
+
+    def test_min_length(self):
+        string1 = 'asdf'
+        string2 = 'fgh'
+        self.assertEqual(longest_common_headtail(string1, string2, 2), (0, 0))
+
+    def test_allow_min_length(self):
+        string1 = 'asdf'
+        string2 = 'sdfg'
+        self.assertEqual(longest_common_headtail(string1, string2, 3), (3, 1))
+
+    def test_allow_high_min_length(self):
+        string1 = 'asdf'
+        string2 = 'sdfgh'
+        self.assertEqual(longest_common_headtail(string1, string2, 10), (0, 0))
 
 class TestAlignStrings(unittest.TestCase):
     def test_single_string(self):
