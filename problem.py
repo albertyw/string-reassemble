@@ -1,7 +1,12 @@
 """
 Given a set of ASCII strings, reassemble the strings
+Reads STDIN as ';' separated strings and outputs to STDOUT the joined string
 
 Sounds exactly like next-gen sequencing
+
+An input that would result in arbitrary output:
+input: '34567;6734'
+output could be either '3456734' or '6734567'
 """
 
 import sys
@@ -34,11 +39,10 @@ def align_strings(strings, largest_string):
         cut_after = min(best_location + len(best_string), len(largest_string))
 
         before = largest_string[:cut_before]
-        middle = best_string
         after = largest_string[cut_after:]
 
         #assert largest_string in before + middle + after
-        largest_string = before + middle + after
+        largest_string = before + best_string + after
     #if len(strings) > 0:
     #    for string in strings:
     #        assert string in largest_string
@@ -98,6 +102,22 @@ class TestLongestCommonHeadTail(unittest.TestCase):
         string1 = 'asdf'
         string2 = 'asd'
         self.assertEqual(longest_common_headtail(string1, string2), (3, 0))
+
+class TestAlignStrings(unittest.TestCase):
+    def test_single_string(self):
+        self.assertEqual(align_strings([], 'asdf'), 'asdf')
+    def test_two_strings(self):
+        self.assertEqual(align_strings(['asdf'], 'sdfg'), 'asdfg')
+    def test_multiple_strings(self):
+        self.assertEqual(align_strings(['asdf','sdfg'], 'dfgh'), 'asdfgh')
+    def test_internal_strings(self):
+        self.assertEqual(align_strings(['sd'], 'asdf'), 'asdf')
+    def test_short_strings(self):
+        self.assertEqual(align_strings(['as','sd'], 'df'), 'asdf')
+    def test_longest_substring(self):
+        self.assertEqual(align_strings(['fd', 'dff'],'asdf'), 'asdffd')
+    def test_different_longest_substring(self):
+        self.assertEqual(align_strings(['fffd', 'dfff'],'asdf'), 'asdffffd')
 
 
 ## MAIN
