@@ -16,25 +16,17 @@ def read_data():
 def align_strings(strings, largest_string):
     while len(strings) > 0:
         # Find longest common substring
-        max_length = 0
-        best_location = None
-        best_string_index = None
+        matches = ['']*len(strings)
         for i, string in enumerate(strings):
-            substring_length, location = longest_common_substring(largest_string, string)
-            if substring_length > max_length:
-                max_length = substring_length
-                best_location = location
-                best_string_index = i
-        if best_string_index == None:
+            substring_length, location = longest_common_headtail(largest_string, string)
+            matches[i] = (substring_length, location, i)
+
+        best_length, best_location, best_string_index = max(matches, key=lambda x: x[0])
+        if best_length == 0:
             break
         best_string = strings.pop(best_string_index)
 
         # Combine longest common substring
-        #print max_length
-        #print best_location
-        #print largest_string
-        #print best_string
-
         cut_before = max(best_location, 0)
         cut_after = min(best_location + len(best_string), len(largest_string))
 
@@ -42,17 +34,8 @@ def align_strings(strings, largest_string):
         middle = best_string
         after = largest_string[cut_after:]
 
-        #print largest_string
-        #print best_string
-        #print 'before',before
-        #print 'middle',middle
-        #print 'after ',after
-
-        if largest_string not in before + middle + after:
-            qwerqwer
+        assert largest_string in before + middle + after
         largest_string = before + middle + after
-        #print largest_string
-        #print '---'
     if len(strings) > 0:
         for string in strings:
             assert string in largest_string
@@ -61,7 +44,7 @@ def align_strings(strings, largest_string):
 # Shift string2 around to find the largest match at the beginning and at the end of string1
 # Assumes that len(string2) <= len(string1)
 #
-def longest_common_substring(string1, string2):
+def longest_common_headtail(string1, string2):
     for i in reversed(range(len(string2))):
         if string1[:i] == string2[len(string2)-i:]:
             return i, i - len(string2)
@@ -74,7 +57,6 @@ if __name__ == "__main__":
 
     # Sort from largest to smallest
     strings = sorted(strings, key=lambda x: -len(x))
-    #print strings
     largest_string = strings.pop(0)
 
     print align_strings(strings, largest_string)
