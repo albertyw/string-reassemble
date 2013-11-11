@@ -106,6 +106,8 @@ if __name__ == "__main__":
     strings = read_data()
     if strings == ["test\n"]:
         unittest.main()
+    elif strings == []:
+        print "\n"
     # Sort from largest to smallest
     strings = sorted(strings, key=lambda x: -len(x))
     largest_string = strings.pop(0)
