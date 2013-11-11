@@ -40,7 +40,12 @@ As a deeper rewrite, it is possible to adapt more specialized substring
 algorithms for this problem for lower time complexities.  Knuth-Morris-Pratt
 could be adapted to make string comparisons linear time allowing the
 longest_common_headtail method be O(n) time, therefore making align_strings
-be O(n*m^2).
+be O(n*m^2).  Running KMT on multiple strings in parallel, memoizing data
+between pairs of strings may result in even lower running time.
+
+Parallelizing the substring finding in align_strings may also be useful for
+large datasets but may be detrimental for small datasets given the high overhead
+of parallelization in Python (because of the global interpreter lock).
 """
 
 import sys
