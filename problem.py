@@ -34,11 +34,11 @@ def align_strings(strings, largest_string):
         middle = best_string
         after = largest_string[cut_after:]
 
-        assert largest_string in before + middle + after
+        #assert largest_string in before + middle + after
         largest_string = before + middle + after
-    if len(strings) > 0:
-        for string in strings:
-            assert string in largest_string
+    #if len(strings) > 0:
+    #    for string in strings:
+    #        assert string in largest_string
     return largest_string
 
 # Shift string2 around to find the largest match at the beginning and at the end of string1
