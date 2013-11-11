@@ -4,9 +4,43 @@ Reads STDIN as ';' separated strings and outputs to STDOUT the joined string
 
 Sounds like next-gen sequencing
 
+
 An input that would result in arbitrary output:
 input: '34567;6734'
 output could be either '3456734' or '6734567'
+
+
+Big-O analysis
+The time complexity of the longest_common_headtail method is O(n^2) where n is
+the min length of the two input strings.  This comes from n string comparisons
+where each comparison is itself O(n).
+
+The time complexity of the align_strings method is O(n^2*m^2) where m is the
+number of strings being compared and n is the length of the largest string,
+assuming that string comparisons are linear time.  This comes from having to
+call longest_common_headtail O(m^3) times but longest_common_headtail uses
+dynamic programming to lower align_strings' time complexity from O(n^2*m^3).
+
+
+There are several strategies to decrease runtime which haven't been implemented
+in order to keep the code readable.
+
+align_strings can be changed to update memoizer with combined_string, though
+that isn't implemented here because it would decrease the readability of the
+code.  Implementing better memoization would make this run faster but not reduce
+the overall asymptotic time complexity.
+
+Going even further, it is possible to only search for substrings in all pairs
+only once, then combine strings in order of the largest to smallest overlap
+while updating the memoization dictionary.  This would separate substring search
+from concatenation.  However, again, this would not reduce asymptotic
+time complexity.
+
+As a deeper rewrite, it is possible to adapt more specialized substring
+algorithms for this problem for lower time complexities.  Knuth-Morris-Pratt
+could be adapted to make string comparisons linear time allowing the
+longest_common_headtail method be O(n) time, therefore making align_strings
+be O(n*m^2).
 """
 
 import sys
@@ -31,7 +65,7 @@ class StringConnector():
         strings = list(set(strings))
         strings = sorted(strings, key=lambda x: -len(x))
 
-        # Find longest common substring
+        # Find longest common substring and their index in strings
         longest_string = strings[0]
         while len(strings) > 1:
             best_length = 0
@@ -49,7 +83,7 @@ class StringConnector():
             string1 = strings[string1_index]
             string2 = strings.pop(string2_index)
 
-            # Combine longest common substring
+            # Combine longest common substring and add back into strings
             cut_before = max(best_location, 0)
             cut_after = min(best_location + len(string2), len(string1))
 
@@ -64,19 +98,18 @@ class StringConnector():
         return longest_string
 
     # Shift string2 to find the largest match at the beginning and at the end of string1
-    # Assumes that len(string2) <= len(string1)
     # Returns (length of overlap, location of overlap relative to string1)
     #
     def longest_common_headtail(self, string1, string2, min_length=1):
-        max_length = len(string2)
+        max_length = min(len(string2), len(string1))
         if string1 in self.memoizer and string2 in self.memoizer[string1]:
             if self.memoizer[string1][string2][0:2] != (0, 0):
                 return self.memoizer[string1][string2][0:2]
             max_length = self.memoizer[string1][string2][2]
-        lengths = range(len(string2))[min_length:]
+        lengths = range(len(string2))[min_length:max_length + 1]
         answer = (0, 0)
         for i in reversed(lengths):
-            if string1[:i] == string2[len(string2) - i:max_length + 1]:
+            if string1[:i] == string2[len(string2) - i:]:
                 answer = (i, i - len(string2))
                 break
             if string1[len(string1) - i:] == string2[:i]:
