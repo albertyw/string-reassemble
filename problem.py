@@ -28,28 +28,25 @@ def align_strings(strings):
         # Find longest common substring
         matches = []
         for i, string1 in enumerate(strings):
-            for j, string2 in enumerate(strings):
-                if j <= i:
-                    continue
+            for j, string2 in enumerate(strings[i+1:], start = i+1):
                 substring_length, location = longest_common_headtail(string1, string2)
-                matches.append( (substring_length, location, i, j) )
-        best_length, best_location, string1_index, string2_index = max(matches, key=lambda x: x[0])
+                matches.append( (substring_length, location, (i, j)) )
+        best_length, best_location, indexes = max(matches, key=lambda x: x[0])
         if best_length == 0:
             break
-        string1 = strings.pop(string1_index)
-        if string1_index < string2_index:
-            string2_index -= 1
+        string1_index, string2_index = indexes
+        string1 = strings[string1_index]
         string2 = strings.pop(string2_index)
 
         # Combine longest common substring
         cut_before = max(best_location, 0)
         cut_after = min(best_location + len(string2), len(string1))
 
-        before = string1[:cut_before]
-        after = string1[cut_after:]
-
-        combined_string = before + string2 + after
-        strings.append(combined_string)
+        combined_string = string1[:cut_before] + string2 + string1[cut_after:]
+        strings[string1_index] = combined_string
+        for i in reversed(range(len(strings))):
+            if strings[i] in combined_string and i != string1_index:
+                strings.pop(i)
         if len(combined_string) > len(longest_string):
             longest_string = combined_string
 
@@ -60,7 +57,7 @@ def align_strings(strings):
 # Returns (length of overlap, location of overlap relative to string1)
 #
 def longest_common_headtail(string1, string2):
-    for i in reversed(range(len(string2)+1)[1:]):
+    for i in reversed(range(len(string2))[1:]):
         if string1[:i] == string2[len(string2)-i:]:
             return i, i - len(string2)
         if string1[len(string1)-i:] == string2[:i]:
@@ -80,7 +77,7 @@ class TestLongestCommonHeadTail(unittest.TestCase):
     def test_same(self):
         string1 = 'asdf'
         string2 = 'asdf'
-        self.assertEqual(longest_common_headtail(string1, string2), (4, 0))
+        self.assertEqual(longest_common_headtail(string1, string2), (0, 0))
 
 
     def test_one_overlapping_after(self):
@@ -94,7 +91,7 @@ class TestLongestCommonHeadTail(unittest.TestCase):
     def test_fully_overlapping_after(self):
         string1 = 'asdf'
         string2 = 'sdf'
-        self.assertEqual(longest_common_headtail(string1, string2), (3, 1))
+        self.assertEqual(longest_common_headtail(string1, string2), (0, 0))
 
     def test_one_overlapping_before(self):
         string1 = 'fghj'
@@ -107,7 +104,7 @@ class TestLongestCommonHeadTail(unittest.TestCase):
     def test_fully_overlapping_before(self):
         string1 = 'asdf'
         string2 = 'asd'
-        self.assertEqual(longest_common_headtail(string1, string2), (3, 0))
+        self.assertEqual(longest_common_headtail(string1, string2), (0, 0))
 
 class TestAlignStrings(unittest.TestCase):
     def test_single_string(self):
@@ -124,6 +121,8 @@ class TestAlignStrings(unittest.TestCase):
         self.assertEqual(align_strings(['fd', 'dff', 'asdf']), 'asdffd')
     def test_different_longest_substring(self):
         self.assertEqual(align_strings(['fffd', 'dfff', 'asdf']), 'asdfffd')
+    def test_redundant_strings(self):
+        self.assertEqual(align_strings(['asdf', 'sdfg', 'dfgh', 'asdfgh']), 'asdfgh')
 
 
 
