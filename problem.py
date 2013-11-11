@@ -26,15 +26,17 @@ def align_strings(strings):
     longest_string = strings[0]
     while len(strings) > 1:
         # Find longest common substring
-        matches = []
+        best_length = 0
         for i, string1 in enumerate(strings):
             for j, string2 in enumerate(strings[i+1:], start = i+1):
                 substring_length, location = longest_common_headtail(string1, string2)
-                matches.append( (substring_length, location, (i, j)) )
-        best_length, best_location, indexes = max(matches, key=lambda x: x[0])
+                if substring_length > best_length:
+                    best_length = substring_length
+                    best_location = location
+                    string1_index = i
+                    string2_index = j
         if best_length == 0:
             break
-        string1_index, string2_index = indexes
         string1 = strings[string1_index]
         string2 = strings.pop(string2_index)
 
