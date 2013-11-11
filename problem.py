@@ -31,18 +31,11 @@ class StringConnector():
 
         # Find longest common substring
         longest_string = strings[0]
-        memoizer = {}
         while len(strings) > 1:
             best_length = 0
             for i, string1 in enumerate(strings):
                 for j, string2 in enumerate(strings[i+1:], start = i+1):
-                    if string1 in memoizer and string2 in memoizer[string1]:
-                        substring_length, location = memoizer[string1][string2]
-                    else:
-                        substring_length, location = self.longest_common_headtail(string1, string2, best_length+1)
-                        if string1 not in memoizer:
-                            memoizer[string1] = {}
-                        memoizer[string1][string2] = substring_length, location
+                    substring_length, location = self.longest_common_headtail(string1, string2, best_length+1)
                     if substring_length > best_length:
                         best_length = substring_length
                         best_location = location
@@ -67,18 +60,30 @@ class StringConnector():
 
         return longest_string
 
-    # Shift string2 around to find the largest match at the beginning and at the end of string1
+    # Shift string2 to find the largest match at the beginning and at the end of string1
     # Assumes that len(string2) <= len(string1)
     # Returns (length of overlap, location of overlap relative to string1)
     #
     def longest_common_headtail(self, string1, string2, min_length = 1):
+        max_length = len(string2)
+        if string1 in self.memoizer and \
+           string2 in self.memoizer[string1]:
+           if self.memoizer[string1][string2][0:2] != (0,0):
+               return self.memoizer[string1][string2][0:2]
+           max_length = self.memoizer[string1][string2][2]
         lengths = range(len(string2))[min_length:]
+        answer = (0, 0)
         for i in reversed(lengths):
-            if string1[:i] == string2[len(string2)-i:]:
-                return i, i - len(string2)
+            if string1[:i] == string2[len(string2)-i:max_length+1]:
+                answer = (i, i - len(string2))
+                break
             if string1[len(string1)-i:] == string2[:i]:
-                return i, len(string1) - i
-        return 0, 0
+                answer = (i, len(string1) - i)
+                break
+        if string1 not in self.memoizer:
+            self.memoizer[string1] = {}
+        self.memoizer[string1][string2] = answer + (min_length,)
+        return answer
 
 ## TESTS
 class TestLongestCommonHeadTail(unittest.TestCase):
