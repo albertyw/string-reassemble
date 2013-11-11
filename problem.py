@@ -21,15 +21,24 @@ def read_data():
 
 # Given a list of strings, continuously combine strings
 def align_strings(strings):
-    # Sort from largest to smallest
+    # Uniquify and sort strings
+    strings = list(set(strings))
     strings = sorted(strings, key=lambda x: -len(x))
+
+    # Find longest common substring
     longest_string = strings[0]
+    memoizer = {}
     while len(strings) > 1:
-        # Find longest common substring
         best_length = 0
         for i, string1 in enumerate(strings):
             for j, string2 in enumerate(strings[i+1:], start = i+1):
-                substring_length, location = longest_common_headtail(string1, string2, best_length+1)
+                if string1 in memoizer and string2 in memoizer[string1]:
+                    substring_length, location = memoizer[string1][string2]
+                else:
+                    substring_length, location = longest_common_headtail(string1, string2, best_length+1)
+                    if string1 not in memoizer:
+                        memoizer[string1] = {}
+                    memoizer[string1][string2] = substring_length, location
                 if substring_length > best_length:
                     best_length = substring_length
                     best_location = location
